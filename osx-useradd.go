@@ -71,10 +71,11 @@ func main() {
 			isHidden = "yes"
 		}
 		//
-		user = osxuser.NewFromString(fmt.Sprintf("%s:%s:%s:%s:%s:%s:%s:%s",
-			strings.TrimSpace(flag.Arg(0)),
-			optUID, optGroups, optPassword, optComment, optHomeDir, optShell,
-			isHidden))
+		user = osxuser.NewFromString(
+			fmt.Sprintf("%s:%s:%s:%s:%s:%s:%s:%s",
+				strings.TrimSpace(flag.Arg(0)),
+				optPassword, optUID, optGroups, optComment,
+				optHomeDir, optShell, isHidden))
 		//
 		users = append(users, user)
 	} else {

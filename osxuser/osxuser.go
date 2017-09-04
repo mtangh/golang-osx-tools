@@ -9,27 +9,70 @@ import (
 	"strings"
 )
 
+// OSXUser ...
 type OSXUser struct {
 	Name          string
+	Password      string
 	UID           int
 	Groups        []string
-	Password      string
 	Fullname      string
 	HomeDirectory string
 	Shell         string
 	IsHidden      bool
 }
 
-func NewFromString(entry string) (user *OSXUser) {
-	// User info
-	user = new(OSXUser)
-	user.UID = -1
+// Lookup ...
+func Lookup(name string) (osxuser *OSXUser, err error) {
+	// Lookup
+	u, err := user.Lookup(name)
+	// No found
+	if err != nil {
+		return nil, err
+	}
+	// Found, setup OSXUser
+	osxuser.Name = u.Username
+	osxuser.Password = "*"
+	// UID
+	if uid, err := strconv.Atoi(u.Uid); err == nil {
+		osxuser.UID = uid
+	} else {
+		osxuser.UID = -1
+	}
+	// Groups
+	osxuser.Groups = []string{}
+	//
+	if groups, err := u.GroupIds(); err == nil {
+		for _, gid := range groups {
+			if group, err := user.LookupGroupId(gid); err == nil {
+				osxuser.Groups = append(osxuser.Groups, group.Name)
+			}
+		}
+	}
+	//
+	osxuser.Fullname = u.Name
+	osxuser.HomeDirectory = u.HomeDir
+	osxuser.Shell = ""
+	osxuser.IsHidden = false
+	//
+	return osxuser, nil
+}
+
+// NewFromString ...
+func NewFromString(entry string) (osxuser *OSXUser) {
 	// Split
 	fields := strings.Split(strings.TrimSpace(entry), ":")
+	// No fields
+	if len(fields) <= 0 {
+		return nil
+	}
+	// User info
+	osxuser = new(OSXUser)
+	osxuser.UID = -1
 	// Field Map
-	fieldsMap := []*string{
-		&user.Name, &user.Password, nil, nil,
-		&user.Fullname, &user.HomeDirectory, &user.Shell, nil}
+	fieldsMap := [](interface{}){
+		&osxuser.Name, &osxuser.Password, &osxuser.UID, &osxuser.Groups,
+		&osxuser.Fullname, &osxuser.HomeDirectory, &osxuser.Shell,
+		&osxuser.IsHidden}
 	// For fields
 	for index, field := range fields {
 		//
@@ -39,87 +82,96 @@ func NewFromString(entry string) (user *OSXUser) {
 			continue
 		}
 		//
-		switch pField := fieldsMap[index]; true {
-		case pField != nil:
-			*pField = field
-		case index == 2:
-			if uid, err := strconv.Atoi(field); err == nil {
-				user.UID = uid
-			} else {
-				user.UID = -1
-			}
-		case index == 3:
+		switch p := (fieldsMap[index]).(type) {
+		case (*string):
+			*p = field
+		case (*[]string):
 			//
-			groups := []string{}
+			*p = []string{}
 			//
-			for _, group := range strings.Split(field, ",") {
-				group = strings.TrimSpace(group)
-				if g := strings.TrimSpace(group); len(g) > 0 && g != "*" {
-					groups = append(groups, g)
+			for _, value := range strings.Split(field, ",") {
+				if v := strings.TrimSpace(value); len(v) > 0 && v != "*" {
+					*p = append(*p, v)
 				}
 			}
+		case (*int):
+			if intValue, err := strconv.Atoi(field); err == nil {
+				*p = intValue
+			} else {
+				*p = -1
+			}
+		case (*[]int):
 			//
-			user.Groups = groups
-		case index == 7:
-			user.IsHidden = strings.ToLower(strings.TrimSpace(field)) == "yes"
+			*p = []int{}
+			//
+			for _, value := range strings.Split(field, ",") {
+				if intValue, err := strconv.Atoi(value); err == nil {
+					*p = append(*p, intValue)
+				}
+			}
+		case (*bool):
+			*p = strings.ToLower(field) == "true" ||
+				strings.ToLower(field) == "yes"
 		}
 	}
 	// Set defaults
-	if len(user.Name) > 0 {
-		if len(user.Groups) <= 0 {
-			user.Groups = []string{"staff"}
+	if len(osxuser.Name) > 0 {
+		if len(osxuser.Groups) <= 0 {
+			osxuser.Groups = []string{"staff"}
 		}
-		if len(user.Fullname) <= 0 {
-			user.Fullname = user.Name
+		if len(osxuser.Fullname) <= 0 {
+			osxuser.Fullname = osxuser.Name
 		}
-		if len(user.HomeDirectory) <= 0 {
-			user.HomeDirectory = fmt.Sprintf("/Users/%s", user.Name)
+		if len(osxuser.HomeDirectory) <= 0 {
+			osxuser.HomeDirectory = fmt.Sprintf("/Users/%s", osxuser.Name)
 		}
-		if len(user.Shell) <= 0 {
-			user.Shell = "/bin/bash"
+		if len(osxuser.Shell) <= 0 {
+			osxuser.Shell = "/bin/bash"
 		}
 	} else {
-		user = nil
+		osxuser = nil
 	}
 	// end
-	return user
+	return osxuser
 }
 
-func (self *OSXUser) UidFor(stringValue string) int {
+// UIDFor ...
+func (osxuser *OSXUser) UIDFor(stringValue string) int {
 	if len(strings.TrimSpace(stringValue)) > 0 {
 		if uid, err := strconv.Atoi(stringValue); err == nil {
-			self.UID = uid
+			osxuser.UID = uid
 		} else {
-			self.UID = -1
+			osxuser.UID = -1
 		}
 	}
-	return self.UID
+	return osxuser.UID
 }
 
-func (self *OSXUser) GroupsFor(stringValue string) []string {
+// GroupsFor ...
+func (osxuser *OSXUser) GroupsFor(stringValue string) []string {
 	if len(strings.TrimSpace(stringValue)) > 0 {
 		//
 		groups := []string{}
 		//
 		for _, group := range strings.Split(
 			strings.TrimSpace(stringValue), ",") {
-			group = strings.TrimSpace(group)
 			if g := strings.TrimSpace(group); len(g) > 0 && g != "*" {
 				groups = append(groups, g)
 			}
 		}
 		//
-		self.Groups = groups
+		osxuser.Groups = groups
 	}
-	return self.Groups
+	return osxuser.Groups
 }
 
-func (self *OSXUser) Exists() (exists bool) {
+// Exists ...
+func (osxuser *OSXUser) Exists() (exists bool) {
 	exists = false
-	if _, err := user.Lookup(self.Name); err == nil {
+	if _, err := user.Lookup(osxuser.Name); err == nil {
 		exists = true
-	} else if self.UID >= 0 {
-		if _, err := user.LookupId(fmt.Sprintf("%d", self.UID)); err == nil {
+	} else if osxuser.UID >= 0 {
+		if _, err := user.LookupId(fmt.Sprintf("%d", osxuser.UID)); err == nil {
 			exists = true
 		}
 	}
