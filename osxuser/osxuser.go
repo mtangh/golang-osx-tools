@@ -53,7 +53,7 @@ func Lookup(name string) (osxuser *OSXUser, err error) {
 	osxuser.HomeDirectory = u.HomeDir
 	osxuser.Shell = ""
 	osxuser.IsHidden = false
-	//
+	// end
 	return osxuser, nil
 }
 
@@ -137,6 +137,10 @@ func NewFromString(entry string) (osxuser *OSXUser) {
 
 // UIDFor ...
 func (osxuser *OSXUser) UIDFor(stringValue string) int {
+	if osxuser == nil {
+		return -1
+	}
+	//
 	if len(strings.TrimSpace(stringValue)) > 0 {
 		if uid, err := strconv.Atoi(stringValue); err == nil {
 			osxuser.UID = uid
@@ -144,11 +148,16 @@ func (osxuser *OSXUser) UIDFor(stringValue string) int {
 			osxuser.UID = -1
 		}
 	}
+	// end
 	return osxuser.UID
 }
 
 // GroupsFor ...
 func (osxuser *OSXUser) GroupsFor(stringValue string) []string {
+	if osxuser == nil {
+		return nil
+	}
+	//
 	if len(strings.TrimSpace(stringValue)) > 0 {
 		//
 		groups := []string{}
@@ -162,12 +171,18 @@ func (osxuser *OSXUser) GroupsFor(stringValue string) []string {
 		//
 		osxuser.Groups = groups
 	}
+	// end
 	return osxuser.Groups
 }
 
 // Exists ...
 func (osxuser *OSXUser) Exists() (exists bool) {
+	if osxuser == nil {
+		return false
+	}
+	//
 	exists = false
+	//
 	if _, err := user.Lookup(osxuser.Name); err == nil {
 		exists = true
 	} else if osxuser.UID >= 0 {
@@ -175,5 +190,6 @@ func (osxuser *OSXUser) Exists() (exists bool) {
 			exists = true
 		}
 	}
+	// end
 	return exists
 }
