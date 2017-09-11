@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"os"
 	"os/exec"
 	"strings"
+	"sync"
 	"syscall"
 )
 
@@ -46,7 +48,7 @@ func NewWithDatasource(datasource string) (dsclCmd *Cmd, err error) {
 func dsclCreateCommand(dsclCmd *Cmd, command string, args ...string) (cmd *exec.Cmd, err error) {
 	// Check
 	if dsclCmd == nil || len(dsclCmd.path) <= 0 || len(command) <= 0 || len(args) <= 0 {
-		return nil, syscall.EINVAL
+		return nil, os.ErrInvalid
 	}
 	// Command
 	if strings.HasPrefix(command, "-") == false {
@@ -83,14 +85,52 @@ func dsclExecute(dsclCmd *Cmd, command string, args ...string) (output *bytes.Bu
 	if cmd, err = dsclCreateCommand(dsclCmd, command, args...); err != nil {
 		return nil, err
 	}
+	// Stdout and Stderr pipe
+	var stdout, stderr io.ReadCloser
+	// Open stdout pipe
+	if stdout, err = cmd.StdoutPipe(); err != nil {
+		return nil, err
+	}
+	// Open stderr pipe
+	if stderr, err = cmd.StderrPipe(); err != nil {
+		return nil, err
+	}
 	// Bytes buffer
 	var stdOutBuff, stdErrBuff bytes.Buffer
-	// stdout switch to bytes buffer
-	cmd.Stdout = &stdOutBuff
-	// stdout switch to bytes buffer
-	cmd.Stderr = &stdErrBuff
-	// DsclCmd Run
-	if err = cmd.Run(); err != nil {
+	// Start
+	if err = cmd.Start(); err != nil {
+		return nil, err
+	}
+	// WaitGroup
+	var wg sync.WaitGroup
+	// Register WaitGroup
+	wg.Add(2)
+	// Stdout
+	go func() {
+		// Copy
+		io.Copy(&stdOutBuff, stdout)
+		// Close stdout
+		stdout.Close()
+		// Done
+		wg.Done()
+		// end
+		return
+	}()
+	// Stderr
+	go func() {
+		// Copy
+		io.Copy(&stdErrBuff, stderr)
+		// Close stdout
+		stdout.Close()
+		// Done
+		wg.Done()
+		// end
+		return
+	}()
+	// Waiting goroutines
+	wg.Wait()
+	// Waiting command
+	if err = cmd.Wait(); err != nil {
 		// Exit Status
 		exitStatus := 0
 		// Type Assertion
@@ -122,7 +162,7 @@ func (dsclCmd *Cmd) Create(path string) (err error) {
 // CreateWithProperties ...
 func (dsclCmd *Cmd) CreateWithProperties(path string, props Properties) (err error) {
 	if dsclCmd == nil || len(path) <= 0 {
-		return syscall.EINVAL
+		return os.ErrInvalid
 	}
 	// New DsclCmd command
 	if _, err = dsclExecute(dsclCmd, "-create", path); err != nil {
@@ -156,7 +196,7 @@ func (dsclCmd *Cmd) CreateWithProperties(path string, props Properties) (err err
 // Delete ...
 func (dsclCmd *Cmd) Delete(path string, keys ...string) (props Properties, err error) {
 	if dsclCmd == nil || len(path) <= 0 {
-		return nil, syscall.EINVAL
+		return nil, os.ErrInvalid
 	}
 	// Property
 	var tempProps Properties
@@ -195,7 +235,7 @@ func (dsclCmd *Cmd) Delete(path string, keys ...string) (props Properties, err e
 // Read ...
 func (dsclCmd *Cmd) Read(path string, keys ...string) (props Properties, err error) {
 	if dsclCmd == nil || len(path) <= 0 {
-		return nil, syscall.EINVAL
+		return nil, os.ErrInvalid
 	}
 	// Output buffer
 	var output *bytes.Buffer
@@ -282,11 +322,11 @@ func (dsclCmd *Cmd) Change(path string, key string, value *Value) (err error) {
 // ChangeAtIndex ...
 func (dsclCmd *Cmd) ChangeAtIndex(path string, key string, value *Value, index int) (err error) {
 	if dsclCmd == nil || len(path) <= 0 {
-		return syscall.EINVAL
+		return os.ErrInvalid
 	}
 	// Key and value
 	if len(key) <= 0 || value == nil {
-		return syscall.EINVAL
+		return os.ErrInvalid
 	}
 	// Current property
 	var props Properties
@@ -309,11 +349,11 @@ func (dsclCmd *Cmd) ChangeAtIndex(path string, key string, value *Value, index i
 // Append ...
 func (dsclCmd *Cmd) Append(path string, key string, value *Value) (err error) {
 	if dsclCmd == nil || len(path) <= 0 {
-		return syscall.EINVAL
+		return os.ErrInvalid
 	}
 	// Key and value
 	if len(key) <= 0 || value == nil {
-		return syscall.EINVAL
+		return os.ErrInvalid
 	}
 	// Current property
 	var props Properties
@@ -336,11 +376,11 @@ func (dsclCmd *Cmd) Append(path string, key string, value *Value) (err error) {
 // List ...
 func (dsclCmd *Cmd) List(path string) (list []string, err error) {
 	if dsclCmd == nil || len(path) <= 0 {
-		return nil, syscall.EINVAL
+		return nil, os.ErrInvalid
 	}
 	// path
 	if len(path) > 0 {
-		return nil, syscall.EINVAL
+		return nil, os.ErrInvalid
 	}
 	// Output
 	var output *bytes.Buffer

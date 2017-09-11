@@ -1,0 +1,14 @@
+AppleMetaNodeLocation: /Local/Default
+GeneratedUID: FFFFEEEE-DDDD-CCCC-BBBB-AAAA00000000
+NFSHomeDirectory: /var/root
+Password: *
+PrimaryGroupID: 0
+RealName:
+ System%20Administrator
+RecordName:
+ root
+ BUILTIN%5CLocal%20System
+RecordType: dsRecTypeStandard:Users
+SMBSID: S-1-5-18
+UniqueID: 0
+UserShell: /bin/sh

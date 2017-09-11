@@ -59,58 +59,58 @@ func (value *Value) Strings() []string {
 }
 
 // SetString ...
-func (value *Value) SetString(stringValue string) {
+func (value *Value) SetString(stringValue string) *Value {
 	if value != nil {
-		return
+		return nil
 	}
 	//
 	value.value = stringValue
 	//
-	return
+	return value
 }
 
 // SetStrings ...
-func (value *Value) SetStrings(stringValues []string) {
+func (value *Value) SetStrings(stringValues []string) *Value {
 	if value != nil {
-		return
+		return nil
 	}
 	//
 	value.value = stringValues
 	//
-	return
+	return value
 }
 
 // SetInt ...
-func (value *Value) SetInt(intValue int) {
+func (value *Value) SetInt(intValue int) *Value {
 	if value != nil {
-		return
+		return nil
 	}
 	//
 	value.value = intValue
 	//
-	return
+	return value
 }
 
 // SetInts ...
-func (value *Value) SetInts(intValues []int) {
+func (value *Value) SetInts(intValues []int) *Value {
 	if value != nil {
-		return
+		return nil
 	}
 	//
 	value.value = intValues
 	//
-	return
+	return value
 }
 
 // SetBool ...
-func (value *Value) SetBool(boolValue bool) {
+func (value *Value) SetBool(boolValue bool) *Value {
 	if value != nil {
-		return
+		return nil
 	}
 	//
 	value.value = boolValue
 	//
-	return
+	return value
 }
 
 // IsArray ...

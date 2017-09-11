@@ -4,9 +4,12 @@ package osxuser
 
 import (
 	"fmt"
+	"os"
 	"os/user"
 	"strconv"
 	"strings"
+
+	"github.com/mtangh/golang-osx-tools/dscl"
 )
 
 // OSXUser ...
@@ -173,6 +176,29 @@ func (osxuser *OSXUser) GroupsFor(stringValue string) []string {
 	}
 	// end
 	return osxuser.Groups
+}
+
+// AddUser ...
+func (osxuser *OSXUser) AddUser() (err error) {
+	if osxuser == nil {
+		return os.ErrInvalid
+	}
+	//
+	var dsclCmd *dscl.Cmd
+	//
+	if dsclCmd, err = dscl.New(); err != nil {
+		return err
+	}
+	//
+	var props dscl.Properties
+	//
+	props["RealName"] = new(dscl.Value).SetString(osxuser.Name)
+	//
+	if err = dsclCmd.CreateWithProperties("/Users/"+osxuser.Name, props); err != nil {
+
+	}
+	// end
+	return nil
 }
 
 // Exists ...

@@ -1,0 +1,15 @@
+dsAttrTypeNative:accountPolicyData:
+ %3C?xml%20version=%221.0%22%20encoding=%22UTF-8%22?%3E%0A%3C!DOCTYPE%20plist%20PUBLIC%20%22-//Apple//DTD%20PLIST%201.0//EN%22%20%22http://www.apple.com/DTDs/PropertyList-1.0.dtd%22%3E%0A%3Cplist%20version=%221.0%22%3E%0A%3Cdict%3E%0A%09%3Ckey%3EcreationTime%3C/key%3E%0A%09%3Creal%3E1484121931.028928%3C/real%3E%0A%09%3Ckey%3EfailedLoginCount%3C/key%3E%0A%09%3Cinteger%3E0%3C/integer%3E%0A%09%3Ckey%3EfailedLoginTimestamp%3C/key%3E%0A%09%3Cinteger%3E0%3C/integer%3E%0A%09%3Ckey%3EpasswordLastSetTime%3C/key%3E%0A%09%3Creal%3E1484121932.6595581%3C/real%3E%0A%3C/dict%3E%0A%3C/plist%3E%0A
+dsAttrTypeNative:IsHidden: 1
+AppleMetaNodeLocation: /Local/Default
+AuthenticationAuthority: ;Kerberosv5;;apple@LKDC:SHA1.E3C221981570DA351E7CA0887D1CB9F557C7C81A;LKDC:SHA1.E3C221981570DA351E7CA0887D1CB9F557C7C81A ;ShadowHash;HASHLIST:%3CSALTED-SHA512-PBKDF2,SRP-RFC5054-4096-SHA512-PBKDF2%3E
+GeneratedUID: B1FB188C-5375-4B41-B370-84BAA0019B9D
+NFSHomeDirectory: /Users/apple
+Password: ********
+PrimaryGroupID: 80
+RealName:
+ Local%20Machine%20Administrator
+RecordName: apple
+RecordType: dsRecTypeStandard:Users
+UniqueID: 500
+UserShell: /bin/bash

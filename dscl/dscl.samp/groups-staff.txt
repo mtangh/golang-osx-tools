@@ -1,0 +1,10 @@
+AppleMetaNodeLocation: /Local/Default
+GeneratedUID: ABCDEFAB-CDEF-ABCD-EFAB-CDEF00000014
+GroupMembers: FFFFEEEE-DDDD-CCCC-BBBB-AAAA00000000
+GroupMembership: root homebrew apple gitea
+Password: *
+PrimaryGroupID: 20
+RealName: Staff
+RecordName: staff BUILTIN%5CUsers
+RecordType: dsRecTypeStandard:Groups
+SMBSID: S-1-5-32-545

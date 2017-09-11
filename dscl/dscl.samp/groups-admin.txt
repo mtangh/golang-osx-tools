@@ -1,0 +1,10 @@
+AppleMetaNodeLocation: /Local/Default
+GeneratedUID: ABCDEFAB-CDEF-ABCD-EFAB-CDEF00000050
+GroupMembers: FFFFEEEE-DDDD-CCCC-BBBB-AAAA00000000 6AEBAD76-6B27-4018-8652-721C4C962456
+GroupMembership: root mtan homebrew apple
+Password: *
+PrimaryGroupID: 80
+RealName: Administrators
+RecordName: admin BUILTIN%5CAdministrators
+RecordType: dsRecTypeStandard:Groups
+SMBSID: S-1-5-32-544
